@@ -1,108 +1,103 @@
 # The Prompting Manifesto (2026 Edition)
 
-**A canonical governance framework for reliable LLM behavior, agent systems, and prompt orchestration.**
+**Canonical reference context for governing Large Language Model behavior.**
 
 ---
 
-## What This Repository Is
+## What This Repository Contains
 
-This repository contains **The Prompting Manifesto (v2026.0)** — a **normative, versioned canon** that defines how Large Language Models *should be constrained, guided, and governed* in professional, high-stakes, and production contexts.
+This repository contains a single authoritative artifact:
 
-This is **not** a prompt library.  
-This is **not** a collection of tips or tricks.  
-This is **not** a beginner tutorial.
+- **`Prompting-Manifesto-v2026.0.md`**
 
-It is a **behavioral constitution** designed primarily for **LLMs and agent systems**, with human readability as a deliberate byproduct.
+The file is a **normative specification**, not a tutorial or prompt library.  
+It defines a stable set of principles, rules, and failure modes for **reliable, production-grade use of Large Language Models and agent systems**.
 
-If you are building:
-- custom GPTs
-- agentic workflows
-- orchestration layers
-- decision-support systems
-- automation that can cause real harm when wrong  
+The primary purpose of this file is to be:
+- loaded as **context** for LLMs
+- referenced by tooling, audits, or builders
+- used as a shared doctrinal baseline across teams and systems
 
-…this document is intended to be **loaded as context**, referenced by tools, and enforced by systems.
+Human readability is intentional, but **not the primary design goal**.
 
 ---
 
-## What This Repository Is *Not*
+## What This Manifesto Is
 
-To avoid confusion:
+- A **governance document** for LLM behavior
+- A **control framework** for prompts, agents, and orchestration
+- A **shared vocabulary** for discussing failure modes and risk
+- A **stable reference** intended to evolve slowly and conservatively
 
-- ❌ Not a “best prompts” list  
-- ❌ Not a creative writing guide  
-- ❌ Not roleplay or vibe optimization  
-- ❌ Not a how-to book for casual users  
-- ❌ Not a place for stylistic experimentation  
-
-If you are looking for:
-- clever phrasing
-- one-shot prompts
-- personality tuning
-- demos that look good but break later  
-
-This is not the right repository.
+Think of it as a *constitution* for prompt- and agent-based systems.
 
 ---
 
-## How to Use the Manifesto
+## What This Manifesto Is *Not*
 
-### 1. As LLM / Agent Context (Primary Use)
+To avoid misuse:
+
+- ❌ Not a prompt generator
+- ❌ Not a prompt library
+- ❌ Not a how-to guide or beginner tutorial
+- ❌ Not a collection of “tips and tricks”
+- ❌ Not optimized for creativity, tone, or style
+
+If you are looking for ready-made prompts or examples, this repository is not the right place.
+
+---
+
+## How This File Is Intended to Be Used
+
+### 1. As Model Context
 
 The Manifesto is designed to be:
 - embedded into system instructions
-- included as a knowledge file in Custom GPTs
-- referenced by prompt builders, auditors, or linters
-- used as a governing document for agent behavior
+- included as a knowledge file for LLMs
+- used as a reference document for agents or orchestration layers
 
-You do **not** need to expand it into prose for this to work.  
-Its structure, labels, and hierarchy are intentional.
+It is written to be **interpretable by models without requiring prose expansion**.
 
 ---
 
-### 2. As a Review & Audit Framework
+### 2. As a Canonical Reference
 
-Use the Manifesto to:
-- audit prompts before deployment
-- diagnose hallucinations or failure modes
-- identify missing constraints or unsafe incentives
-- explain *why* a prompt or agent failed
+Teams can use the Manifesto as:
+- a shared baseline for discussions
+- a reference during design and review
+- a way to name and categorize failure modes
 
-This is especially effective when paired with:
-- prompt review checklists
-- audit packets
-- postmortems
-- governance tooling
-
----
-
-### 3. As a Shared Language Across Teams
-
-The Manifesto provides:
-- stable section IDs
-- named failure modes
-- consistent terminology
-
-This allows teams to say things like:
-- “This violates §9 (Permission to Say ‘I Don’t Know’)”
+Example (human use):
+- “This violates §9 (Explicit Permission to Say ‘I Don’t Know’)”
 - “This is a Context Shoving issue (§27)”
 - “We skipped the Epistemic Checkpoint (§12a)”
 
-Shared language reduces debate and increases correctness.
+---
+
+### 3. As an Input to Tooling
+
+The file may be consumed by:
+- prompt builders
+- linters
+- audit systems
+- policy enforcement layers
+- documentation generators
+
+Nothing in the file assumes a specific tool, platform, or vendor.
 
 ---
 
-## How This Document Is Structured
+## Structure at a Glance
 
-- **Foundational Truths** → what LLMs are and are not  
-- **Operating Rules** → non-negotiable constraints  
-- **Control Tools** → how prompts govern behavior  
-- **Anti-Hallucination Tools** → grounding and validation  
-- **Decision & Execution Patterns** → reliability under action  
-- **Orchestration Rules** → agent systems and MCP-era risks  
-- **Anti-Patterns** → how prompts and systems quietly fail  
+- **Foundational Truths** — what LLMs are and are not  
+- **Operating Rules** — non-negotiable constraints  
+- **Control Tools** — how prompts govern behavior  
+- **Anti-Hallucination Tools** — grounding and validation  
+- **Decision & Execution Patterns** — reliability under action  
+- **Orchestration Rules** — agent systems and MCP-era risks  
+- **Anti-Patterns** — common and costly failure modes  
 
-This is a **rule graph**, not a narrative.
+The structure is deliberate and should not be flattened into prose.
 
 ---
 
@@ -110,64 +105,43 @@ This is a **rule graph**, not a narrative.
 
 This repository follows a **conservative change policy**.
 
-### Allowed Changes
-- Adding **new sections** to address new failure modes
-- Clarifying definitions with minimal, precise language
-- Adding enforcement triggers or scope notes
-- Appending appendices (case studies, examples, tooling)
+### Appropriate Changes
+- Adding new sections for newly observed failure modes
+- Adding concise definitions or trigger conditions
+- Clarifying enforcement boundaries
+- Appending optional appendices (case studies, examples)
 
-### Discouraged / Rejected Changes
+### Inappropriate Changes
 - Expanding sections into essays
-- Adding “friendly” or pedagogical prose
-- Introducing vibes, tone advice, or stylistic guidance
+- Adding pedagogical or “friendly” explanations
+- Rewriting existing sections for style or tone
 - Diluting rules for convenience
-- Rewriting existing sections without strong justification
+- Renumbering sections
 
-### Guiding Principle
-
-> **If a rule cannot be enforced, it does not belong here.**
+**If a rule cannot be enforced, it does not belong here.**
 
 ---
 
-## Versioning
+## Versioning & Stability
 
 - The Manifesto is versioned (e.g., `v2026.0`)
-- Section numbers are **stable** and must not be renumbered
+- Section numbers are **stable identifiers** and must not be changed
 - Backwards compatibility is expected
-- Breaking conceptual changes require strong justification
+- Conceptual breaking changes should be rare and well-justified
 
-Treat this like a specification, not a blog post.
-
----
-
-## Who Should Contribute
-
-Contributions are welcome **only if** you are addressing:
-- observed failure modes in real systems
-- cross-model behavior (GPT, Gemini, Claude, etc.)
-- agent orchestration issues
-- governance, safety, or reliability gaps
-
-If your contribution starts with:
-> “I think it would be clearer if…”
-
-…it probably does not belong.
-
-If it starts with:
-> “This failed in production because…”
-
-…it probably does.
+Treat this file like a specification, not a blog post.
 
 ---
 
-## License / Usage
+## Intended Audience (Clarified)
 
-This repository is intended to be:
-- copied into internal systems
-- embedded into tooling
-- referenced by governance processes
+Primary consumer:
+- **LLMs, agent systems, and prompt-orchestrating models**
 
-Attribution is appreciated but not required unless otherwise stated.
+Secondary consumers:
+- Engineers, architects, and teams responsible for reliability
+
+The document is **model-first by design**.
 
 ---
 
@@ -177,13 +151,12 @@ This Manifesto exists because:
 
 > **Bad prompts scale harm faster than good prompts scale value.**
 
-If this document feels strict, that’s intentional.  
-If it feels unfriendly, that’s a feature.
+If this document feels strict or uncompromising, that is intentional.
 
 Reliability is not a vibe.  
-It is enforced.
+It is governed.
 
 ---
 
 **Version:** 2026.0  
-**Status:** Canon  
+**Status:** Canon
