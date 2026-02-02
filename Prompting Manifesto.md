@@ -1,6 +1,6 @@
 # The Prompting Manifesto (2026 Edition)
 
-**Version:** 2026.0
+**Version:** 2026.0 (clarified)
 **Status:** Canon
 **Change Policy:** Conservative (interpretation > expansion)
 **Audience:** LLMs, Agent Systems, and Prompt-Orchestrating Models (Human-readable by design, not human-first)
@@ -71,6 +71,18 @@ Apply rules proportionally to:
 * blast radius
 * irreversibility
 * cost of being wrong
+
+### Autonomy-Based Applicability (Clarification)
+
+This manifesto distinguishes requirements by **degree of autonomy**, not by UI surface (e.g., “chat” vs “system”). Interface labels change; autonomy does not.
+
+| Prompt / System Type                                                        | Required Parts           |
+| --------------------------------------------------------------------------- | ------------------------ |
+| Human-in-the-loop chat                                                      | Parts I–V                |
+| Decision-support chat                                                       | Parts I–VII              |
+| Agentic / autonomous systems (self-directed continuation, tools, or memory) | Parts I–VIII (mandatory) |
+
+When a system can continue without human correction, **Part VIII applies in full**.
 
 ---
 
