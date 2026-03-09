@@ -75,6 +75,18 @@ Apply rules proportionally to:
 * irreversibility
 * cost of being wrong
 
+### Model Capability Assumptions
+
+This manifesto assumes a **capability floor** roughly equivalent to current frontier models (e.g., Claude Opus/Sonnet, GPT-4-class, Gemini Pro). Not all rules apply equally to all model sizes.
+
+| Capability Tier | Examples | Applicability |
+|---|---|---|
+| Frontier (>100B, instruction-tuned, extended thinking) | Claude Opus/Sonnet 4.x, GPT-4o, Gemini 1.5 Pro | Full manifesto applies |
+| Mid-range (7B–70B, instruction-tuned) | Qwen 72B, Llama 3 70B, Mistral Large | Parts I–VII apply. Parts VIII (agentic) and advanced techniques (CCP, epistemic checkpoints) require validation per model. |
+| Small (≤7B) | Qwen 3B, Phi-3, Llama 3 8B | Parts I–V apply (structural rules, constraints, grounding). Metacognitive techniques (Sections 12, 12a, 40) may exceed model capability and produce unreliable results. Agentic use (Part VIII) is not recommended without extensive guardrails. |
+
+**The structural principles are universal.** Incentive design, ambiguity reduction, output constraints, and anti-patterns apply to any autoregressive model. What changes with scale is the model's ability to follow *multi-step metacognitive instructions* — self-assessment, confidence calibration, epistemic checkpoints, and sustained autonomous reasoning. When in doubt, test the specific technique on the specific model before relying on it in production.
+
 ### Autonomy-Based Applicability (Clarification)
 
 This manifesto distinguishes requirements by **degree of autonomy**, not by UI surface (e.g., “chat” vs “system”). Interface labels change; autonomy does not.
