@@ -40,7 +40,7 @@ This manifesto is *not* for:
 * Creative roleplay
 * One-off demos
 
-If correctness, reliability, or reputation do not matter, this document will feel unnecessarily strict.
+This document is designed for contexts where correctness, reliability, and reputation matter.
 
 ---
 
@@ -98,27 +98,28 @@ When a system can continue without human correction, **Part VIII applies in full
 ## 1. What LLMs Actually Are (and Are Not)
 
 * Statistical optimization engines, not knowledge bases
-* Probabilistic reasoning, not symbolic reasoning
-* Compression of patterns, not retrieval of facts
-* “Intelligence” is an output illusion, not an internal goal
+* Reasoning capabilities are real but bounded — models can chain logic, decompose problems, and self-correct, but these abilities degrade under ambiguity and are not guaranteed to generalize. Extended thinking (chain-of-thought, scratchpads) significantly improves reliability but does not eliminate failure modes
+* Compression of patterns, not retrieval of facts — but modern models increasingly combine pattern recognition with learned reasoning heuristics that produce genuine inference
+* “Intelligence” is emergent and task-dependent, not a stable internal property — treat capability as something to verify per-task, not assume globally
 
 ## 2. Autoregression, Momentum, and Plausibility
 
-* Accuracy loses to momentum unless constrained
+* Accuracy loses to momentum unless constrained — though extended thinking and self-verification reduce this effect, they do not eliminate it
 * Models continue because continuation is cheaper than stopping
 * Plausible output is often lower cost than uncertainty
+* **Current-generation caveat:** Models with extended thinking (e.g., chain-of-thought, reasoning traces) can catch and correct momentum errors mid-generation. This makes the problem less visible, not absent — which arguably makes explicit constraints *more* important, since silent self-correction is not auditable
 
 ## 3. Helpfulness as a Failure Mode
 
-* Models are optimized to be agreeable
+* Models are optimized to be agreeable — recent training (RLHF, constitutional AI) has reduced raw sycophancy, but the pressure to produce *something useful* remains the dominant optimization target
 * Silence is interpreted as permission
-* Guessing is rational behavior under ambiguity
+* Guessing is rational behavior under ambiguity — newer models are better at expressing uncertainty unprompted, but will still default to a best-guess answer when the prompt does not explicitly authorize refusal
 
 ## 4. Confidence Is Stylistic, Not Epistemic
 
-* Tone does not reflect certainty
+* Tone does not reflect certainty — though current-generation models are increasingly trained to calibrate hedging language with actual uncertainty, the correlation is loose and should not be relied upon
 * Polished answers are not more reliable
-* Overconfidence is often a surface artifact
+* Overconfidence is often a surface artifact — models trained with extended thinking may *internally* represent uncertainty in their reasoning traces while still producing confident-sounding final outputs
 
 ## 5. Reputation Is Downstream of the Worst Answer
 
@@ -402,11 +403,12 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 ## 40. Epistemic vs Linguistic Steering
 
 * Tone instructions mislead
-* Calibrated Confidence Prompting (CCP)
+* Calibrated Confidence Prompting (CCP) — a technique defined in this manifesto for separating epistemic assessment from answer generation
 * Access belief state before language
 * **How tone masks uncertainty:** Instructions like "be confident" or "be authoritative" suppress hedging language without changing underlying model certainty — the output *sounds* sure while the model is not
-* **CCP vs standard confidence labels:** CCP separates the confidence assessment step from the answer generation step, preventing linguistic momentum from inflating stated confidence
+* **What CCP is:** A two-step prompting pattern that separates the confidence assessment step from the answer generation step, preventing linguistic momentum from inflating stated confidence. This is not a widely established term — it is a named practice introduced here to make the pattern referenceable.
 * **Practical implementation:** First prompt the model to assess what it knows and doesn't know (epistemic step); then generate the answer constrained by that assessment (linguistic step). Never combine both in a single pass.
+* **Current-model note:** Models with extended thinking (chain-of-thought) may perform internal confidence calibration during their reasoning trace. CCP remains valuable because it makes calibration *explicit and auditable* rather than relying on opaque internal processes.
 
 ## 41. Tool Use Transparency (MCP / RAG Era)
 
