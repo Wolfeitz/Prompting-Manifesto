@@ -9,7 +9,10 @@
 
 ---
 
-## PREFACE
+## PREFACE (Commentary — not normative)
+
+> The following is context for human readers.
+> It is not consumed as instruction by LLM systems.
 
 ### Why This Manifesto Exists
 
@@ -381,24 +384,36 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 * Context accumulates error
 * Chatter reinforces mistakes
 * Reset and summarize deliberately
+* **Decay signals:** Contradictions with earlier statements, loss of constraint adherence, increasing verbosity, and hallucinated references to prior turns
+* **Reset strategy:** Summarize current state → discard conversation history → re-inject summary + original constraints as a fresh prompt
+* **When to force a reset:** After observing any decay signal, or proactively at fixed turn intervals in long-running agents
 
 ## 39. Orchestrator-Worker Topologies
 
 * Flat agent collaboration fails
 * Central synthesis required
 * Rewrite state explicitly
+* **Why flat fails:** Without a single point of synthesis, contradictory worker outputs merge silently into downstream state, producing incoherent results
+* **When to rewrite state vs pass through:** Pass through when worker output is self-contained and verified; rewrite when outputs must be reconciled, ranked, or when downstream consumers need a unified view
+* **Minimum viable orchestrator:** Accepts worker outputs, validates against task constraints, resolves conflicts, and produces a single canonical state before dispatching the next step
 
 ## 40. Epistemic vs Linguistic Steering
 
 * Tone instructions mislead
 * Calibrated Confidence Prompting (CCP)
 * Access belief state before language
+* **How tone masks uncertainty:** Instructions like "be confident" or "be authoritative" suppress hedging language without changing underlying model certainty — the output *sounds* sure while the model is not
+* **CCP vs standard confidence labels:** CCP separates the confidence assessment step from the answer generation step, preventing linguistic momentum from inflating stated confidence
+* **Practical implementation:** First prompt the model to assess what it knows and doesn't know (epistemic step); then generate the answer constrained by that assessment (linguistic step). Never combine both in a single pass.
 
 ## 41. Tool Use Transparency (MCP / RAG Era)
 
 * No implicit tool reliance
 * Log expectations and observations
 * Discard output if raw results are missing
+* **Minimum logging requirements:** Every tool invocation must record: tool name, input parameters, raw output, and whether the output was incorporated into the final response
+* **Discard in practice:** If a tool returns empty, malformed, or unverifiable results, the model must not silently substitute generated content — it must either retry, report the failure, or refuse the claim
+* **RAG-specific concern:** Retrieved chunks must be cited with source and recency metadata; answers that cannot be traced to a specific retrieved passage should be flagged as unsupported
 
 ## 42. Memory Use & Boundaries
 
@@ -412,17 +427,45 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 
 ## 43. Magic Spell Prompting
 
+* **Definition:** Treating specific phrases ("take a deep breath," "think step by step") as incantations that reliably improve output regardless of context.
+* **Trigger:** Prompt author copies phrasing from tip lists without understanding the underlying mechanism.
+* **Why it fails:** Phrases work when they restructure the optimization target. Copied without that understanding, they're noise that consumes context and teaches false confidence in the prompt.
+
 ## 44. Roleplay Masquerading as Expertise
+
+* **Definition:** Assigning a persona ("You are a world-class lawyer") and treating the output as if the model now possesses domain expertise.
+* **Trigger:** Role framing used as a substitute for domain constraints, ground truth, or verification.
+* **Why it fails:** Roles shift tone and vocabulary distribution, not knowledge. The model doesn't gain competence — it gains the *appearance* of competence, which is more dangerous than no role at all.
 
 ## 45. Silent Tool Use
 
+* **Definition:** Allowing or encouraging the model to use tools (search, code execution, retrieval) without logging what was called, what was returned, or whether the result was actually used.
+* **Trigger:** Tool-augmented prompts that don't require the model to cite or surface tool outputs.
+* **Why it fails:** Unlogged tool use is unauditable. If the tool returns garbage or nothing, the model will paper over the gap with generated text, and no one will know.
+
 ## 46. Context Shoving
+
+* **Definition:** Dumping large volumes of reference material into context under the assumption that more context = better answers.
+* **Trigger:** RAG pipelines that retrieve aggressively, or users who paste entire documents "just in case."
+* **Why it fails:** Attention is finite and non-uniform. Large contexts dilute relevance ranking and increase the probability that the model latches onto irrelevant fragments. Context is not comprehension.
 
 ## 47. Chain-of-Thought Fetishism
 
+* **Definition:** Requiring explicit chain-of-thought reasoning for every query regardless of whether the task benefits from it.
+* **Trigger:** Blanket "always show your reasoning" instructions applied uniformly.
+* **Why it fails:** CoT is useful for multi-step reasoning but counterproductive for recall, classification, and simple generation. Forced reasoning creates plausible-sounding justifications that may not reflect actual model computation, and consumes token budget.
+
 ## 48. Infinite Iteration Without Reset
 
+* **Definition:** Continuing to refine the same output through repeated revision passes without resetting context or re-establishing the objective.
+* **Trigger:** "Try again" / "Make it better" loops beyond 2–3 iterations.
+* **Why it fails:** Each iteration compounds context decay. The model increasingly optimizes for the delta from the last version rather than the original objective. Error accumulates, and the output drifts from intent while appearing to improve.
+
 ## 49. Treating Outputs as Answers Instead of Hypotheses
+
+* **Definition:** Accepting model output as settled fact rather than a hypothesis requiring validation.
+* **Trigger:** Any workflow where model output is consumed downstream without human review or verification.
+* **Why it fails:** Outputs are the model's best statistical completion, not verified truth. Treating them as answers skips the verification step that separates useful AI from dangerous AI.
 
 ---
 
@@ -441,12 +484,37 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 * Exploration-only
 * Low-stakes vs high-stakes
 
+| Use Case             | Applicable Parts | Key Sections         |
+|----------------------|------------------|----------------------|
+| Correctness-critical | III, V, VII      | 9, 10, 12a, 33, 34  |
+| Decision-critical    | III, VI          | 12, 28, 29, 30, 31  |
+| Exploration-only     | II, IV           | 15, 17, 18, 21      |
+| Low-stakes           | II, IV           | 15, 16 (light)      |
+| High-stakes          | III, V, VI, VII  | All of III + 33–37   |
+
 ## 52. Maturity Model for Prompting Teams
 
-* Ad-hoc
-* Structured
-* Governed
-* Orchestrated
+**Level 1 — Ad-hoc**
+Prompts are written per-task with no reuse, review, or standards.
+No shared patterns. Success depends entirely on individual skill.
+→ Advance when: team agrees on a shared prompt structure or review step.
+
+**Level 2 — Structured**
+Prompts follow a consistent format. Templates or scaffolds exist.
+Some reuse across projects. No formal review or failure tracking.
+→ Advance when: prompts are reviewed before deployment and failures are logged.
+
+**Level 3 — Governed**
+Prompt review is mandatory for production use. Failure modes are tracked.
+Confidence calibration and refusal behaviors are enforced.
+Anti-hallucination controls (Parts V, VII) are standard practice.
+→ Advance when: prompts are version-controlled, tested, and monitored in production.
+
+**Level 4 — Orchestrated**
+Prompts are components in larger systems (agents, pipelines, workflows).
+Context management, tool transparency, and reset logic are enforced.
+Prompts are tested adversarially before deployment.
+Failure postmortems feed back into prompt design.
 
 ---
 
@@ -468,6 +536,13 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 
 # APPENDICES
 
+## Companion Tools
+
+This manifesto is designed to be referenced by prompt-building tools
+and agent systems. Implementations should declare which Parts they enforce
+and at what autonomy level. See the Next Gen GPT Builder (v2026.6+)
+for one such implementation.
+
 ## Contribution Guidelines
 
 * Prefer adding new sections over expanding existing ones
@@ -475,10 +550,14 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 * If a rule cannot be enforced, it should not be added
 * Preserve backwards compatibility
 
-## Optional Appendices
+## APPENDICES (Planned)
+
+The following appendices are planned for future releases and are not yet available:
 
 * Glossary
 * Prompt templates
 * Case studies
 * Failure postmortems
 * Reference architectures
+
+Contributions welcome per the guidelines above.
