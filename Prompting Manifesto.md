@@ -87,6 +87,8 @@ This manifesto distinguishes requirements by **degree of autonomy**, not by UI s
 
 When a system can continue without human correction, **Part VIII applies in full**.
 
+**Cross-cutting concerns:** Parts IX (Anti-Patterns) and X (Practical Application) apply at all autonomy levels. Part IX provides failure-mode awareness regardless of system type. Part X provides deployment checklists and tool selection guidance that scale with stakes, not autonomy.
+
 ---
 
 # PART I — THE REALITY OF LLMs (FOUNDATIONAL TRUTHS)
@@ -420,6 +422,9 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 * Store only durable preferences
 * Prefer ephemeral context
 * Avoid contamination and privacy risk
+* **What qualifies as durable:** User-confirmed preferences, verified constraints, and explicitly saved decisions. Inferred preferences and single-use context do not qualify.
+* **Contamination risk:** Prior conversation state can bias future outputs. When memory persists across sessions, stale assumptions, outdated facts, and resolved constraints can silently re-enter the optimization target.
+* **Privacy boundary:** Never persist PII, credentials, or sensitive business data in memory unless the system is explicitly designed and authorized for it. Default to ephemeral.
 
 ---
 
@@ -473,9 +478,30 @@ To surface epistemic uncertainty *before* linguistic momentum commits the model 
 
 ## 50. Prompt Review Checklist
 
-* Pre-ship validation
-* Red flags
-* Go / no-go criteria
+Before deploying a prompt to production, validate against these criteria:
+
+**Structure & Constraints**
+* Does the prompt specify output format, length, and audience?
+* Are hard constraints and invariants explicit (Section 20)?
+* Is scope bounded with clear pivot conditions (Section 16)?
+
+**Failure & Uncertainty Handling**
+* Is the model explicitly permitted to say "I don't know" (Section 9)?
+* Are refusal behaviors defined for edge cases?
+* Is confidence calibration required for the output type (Section 12)?
+* Does the prompt include an epistemic checkpoint for high-stakes outputs (Section 12a)?
+
+**Grounding & Verification**
+* Are sources of ground truth declared (Section 24)?
+* Is there a verification loop or sanity check pass (Sections 33–34)?
+* For tool-augmented prompts: are tool calls logged and outputs cited (Section 41)?
+
+**Red Flags — Reject If Present**
+* Model is incentivized to guess rather than refuse
+* No stop condition or fallback for failure
+* Role framing substitutes for domain constraints (Anti-pattern 44)
+* Tool outputs are consumed without logging (Anti-pattern 45)
+* Prompt contains copied "magic" phrases without clear structural purpose (Anti-pattern 43)
 
 ## 51. Choosing the Right Tools for the Job
 
@@ -550,7 +576,7 @@ for one such implementation.
 * If a rule cannot be enforced, it should not be added
 * Preserve backwards compatibility
 
-## APPENDICES (Planned)
+## Planned Appendices
 
 The following appendices are planned for future releases and are not yet available:
 
