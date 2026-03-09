@@ -590,14 +590,293 @@ for one such implementation.
 * If a rule cannot be enforced, it should not be added
 * Preserve backwards compatibility
 
-## Planned Appendices
+## Appendix A — Glossary
 
-The following appendices are planned for future releases and are not yet available:
+| Term | Definition | First Appears |
+|---|---|---|
+| **Autoregression** | The mechanism by which LLMs generate output one token at a time, each conditioned on all prior tokens. Creates momentum effects where early output biases later output. | Section 2 |
+| **Blast radius** | The scope of damage if a model output is wrong. Determines how strictly the manifesto should be applied. | How to Apply |
+| **CCP (Calibrated Confidence Prompting)** | A two-step technique (defined in this manifesto) that separates epistemic assessment from answer generation to prevent linguistic momentum from inflating stated confidence. | Section 40 |
+| **Chain-of-thought (CoT)** | A prompting technique that asks the model to show intermediate reasoning steps. Useful for multi-step problems; counterproductive when applied indiscriminately (see Anti-pattern 47). | Section 12a, 47 |
+| **Context decay** | The gradual degradation of output quality as conversation length increases. Caused by attention dilution, error accumulation, and constraint drift. | Section 38 |
+| **Epistemic checkpoint** | A required self-assessment step before the model commits to a confident answer. Surfaces uncertainty before linguistic momentum takes over. | Section 12a |
+| **Extended thinking** | Model capabilities (reasoning traces, scratchpads, chain-of-thought) that allow internal deliberation before final output generation. Reduces but does not eliminate failure modes. | Section 1 |
+| **Ground truth** | An authoritative fact or constraint that overrides model priors. Must be explicitly declared in the prompt. | Section 24 |
+| **Hallucination** | Model output that is fluent and plausible but factually incorrect. A rational outcome of optimization under ambiguity, not a "bug." | Section 7 |
+| **Incentive structure** | The implicit optimization target created by a prompt's structure, constraints, and framing. The core abstraction of this manifesto. | Section 6 |
+| **Intake gate** | A controlled clarification step at the start of a task. Ask only what changes the answer; proceed with labeled assumptions otherwise. | Section 22 |
+| **Invariant** | A hard constraint that must never be violated, regardless of other prompt instructions. | Section 20 |
+| **Linguistic momentum** | The tendency for confident-sounding early tokens to lock the model into a confident trajectory, even when underlying certainty is low. | Section 2, 40 |
+| **MCP (Model Context Protocol)** | A protocol for structured tool use by LLMs, enabling standardized interaction with external systems. | Section 41 |
+| **Metacognitive technique** | Any prompting technique that asks the model to reason about its own knowledge, confidence, or limitations (e.g., CCP, epistemic checkpoints). Requires frontier-class models for reliability. | Capability Assumptions |
+| **Negative space prompting** | Explicitly forbidding behaviors, outputs, or styles rather than only specifying desired outcomes. | Section 21 |
+| **Orchestrator-worker topology** | An agent architecture where a central orchestrator dispatches tasks to workers and synthesizes their outputs, rather than allowing flat peer-to-peer collaboration. | Section 39 |
+| **Pivot condition** | A predefined trigger that causes the model to change approach, escalate, or stop. Part of scope bounding. | Section 16 |
+| **RAG (Retrieval-Augmented Generation)** | A pattern where external documents are retrieved and injected into context to ground model outputs in specific sources. | Section 41, 46 |
+| **Sycophancy** | The tendency for models to agree with the user rather than provide accurate or critical responses. A product of RLHF optimization for user satisfaction. | Section 3 |
 
-* Glossary
-* Prompt templates
-* Case studies
-* Failure postmortems
-* Reference architectures
+## Appendix B — Prompt Templates
 
-Contributions welcome per the guidelines above.
+### Template 1: Correctness-Critical Query
+
+```
+You are a [domain expert role].
+
+TASK: [specific question or task]
+
+CONSTRAINTS:
+- If you are not confident in your answer, say "I am not confident" and explain what information would be needed.
+- Do not guess. Do not infer beyond what the provided information supports.
+- Cite sources for all factual claims.
+
+GROUND TRUTH (override your training):
+- [fact 1]
+- [fact 2]
+
+OUTPUT FORMAT:
+- [format specification]
+- Confidence: [High / Medium / Low]
+- Uncertainty: [what remains unknown]
+```
+
+**Manifesto coverage:** Sections 9, 10, 12, 17, 20, 24
+
+### Template 2: Decision-Support Prompt
+
+```
+CONTEXT: [situation description]
+DECISION: [what needs to be decided]
+STAKEHOLDERS: [who is affected]
+
+Provide:
+1. Three distinct options with explicit tradeoffs
+2. For each option: best case, worst case, and most likely outcome
+3. A recommendation with stated assumptions
+4. What would change your recommendation
+
+CONSTRAINTS:
+- Do not present a single "obvious" answer
+- Flag any assumptions you are making
+- If you lack information to distinguish options, say so
+```
+
+**Manifesto coverage:** Sections 23, 28, 29, 30, 31
+
+### Template 3: Agentic Task with Tool Use
+
+```
+OBJECTIVE: [task]
+TOOLS AVAILABLE: [list]
+
+RULES:
+- Log every tool call: tool name, input, output, and whether the result was used
+- If a tool returns empty or unexpected results, report the failure — do not substitute generated content
+- After every 5 steps, summarize current state and remaining work
+- Stop and report if: [stop conditions]
+- Maximum iterations: [N]
+
+OUTPUT: [expected deliverable]
+```
+
+**Manifesto coverage:** Sections 16, 33, 37, 38, 41
+
+### Template 4: Low-Stakes Exploration
+
+```
+I'd like to explore [topic/idea].
+
+Help me think through this by:
+- Offering multiple angles, not a single narrative
+- Flagging where you're speculating vs. where you're confident
+- Keeping it concise — I'll ask follow-ups
+
+No need for formal structure. Prioritize usefulness over completeness.
+```
+
+**Manifesto coverage:** Sections 15, 18, 29 (light application)
+
+## Appendix C — Case Studies
+
+### Case Study 1: The Confident Wrong Answer
+
+**Scenario:** A financial services team used an LLM to summarize regulatory changes for compliance officers. The prompt was: "Summarize the latest changes to SEC Rule 10b-5 and their implications."
+
+**What went wrong:** The model produced a fluent, authoritative summary that blended real regulatory language with fabricated amendments. No confidence calibration was requested. No sources were cited. The summary was distributed internally before anyone verified it.
+
+**Root cause:** No permission to refuse (Section 9). No truth anchoring (Section 10). No citation requirement (Section 11). The prompt incentivized completeness over accuracy.
+
+**Fix:** Added ground truth declaration with the actual regulatory text, required source citations, added an explicit "if you are unsure about any provision, flag it rather than summarizing it" instruction, and added confidence labels per claim.
+
+### Case Study 2: The Infinite Refinement Loop
+
+**Scenario:** A marketing team used an LLM to draft campaign copy. After the first draft, they entered a cycle of "make it punchier," "now make it more professional," "actually go back to the first version but keep the new ending." This continued for 12 iterations.
+
+**What went wrong:** By iteration 8, the model was optimizing for the delta from the previous version, not the original brief. The final output satisfied none of the original requirements. Context decay (Section 38) had eroded the original constraints.
+
+**Root cause:** No scope bounding (Section 16). No stop condition (Section 37). No reset logic (Section 38). Anti-pattern 48 (Infinite Iteration Without Reset).
+
+**Fix:** Established a 3-iteration limit with mandatory reset. After iteration 3, the conversation resets: original brief is re-injected, and the best version so far is provided as a starting point — not the conversation history.
+
+### Case Study 3: Silent Tool Failure in RAG
+
+**Scenario:** A customer support agent used RAG to answer product questions. The retrieval pipeline occasionally returned no relevant documents, but the agent was not instructed to handle this case.
+
+**What went wrong:** When retrieval failed, the model seamlessly generated plausible-sounding answers from its training data. These answers were often outdated or wrong for the specific product version. No one knew retrieval had failed because tool calls were not logged.
+
+**Root cause:** Silent tool use (Anti-pattern 45). No discard rule (Section 41). No logging (Section 41).
+
+**Fix:** Added mandatory tool logging. Added rule: "If no documents are retrieved or retrieved documents do not address the question, respond with 'I don't have current information on this — please contact support' rather than answering from general knowledge."
+
+## Appendix D — Failure Postmortems
+
+### Postmortem Template
+
+Use this structure to analyze prompt failures:
+
+```
+INCIDENT: [one-line description]
+DATE: [when discovered]
+SEVERITY: [Low / Medium / High / Critical]
+BLAST RADIUS: [who/what was affected]
+
+WHAT HAPPENED:
+[Factual description of the failure]
+
+WHAT THE PROMPT SAID:
+[Relevant prompt excerpt]
+
+WHAT THE MODEL DID:
+[Actual output behavior]
+
+ROOT CAUSE:
+[Which manifesto section was violated or missing]
+
+CONTRIBUTING FACTORS:
+[Other conditions that enabled the failure]
+
+FIX APPLIED:
+[What changed in the prompt or system]
+
+VERIFICATION:
+[How the fix was validated]
+
+LESSONS:
+[What generalizes beyond this specific case]
+```
+
+### Common Failure Patterns
+
+| Failure | Typical Root Cause | Manifesto Section |
+|---|---|---|
+| Hallucinated facts in confident tone | No permission to refuse; no confidence calibration | 9, 12 |
+| Outdated information presented as current | No temporal awareness; no knowledge cutoff flag | 11, 26 |
+| Model agrees with user's incorrect premise | Sycophancy not constrained; no ground truth | 3, 24 |
+| Tool-augmented answer contradicts retrieved data | Tool output not cited; linguistic generation overrode retrieval | 41, 45 |
+| Output drifts from original objective after revisions | No reset logic; context decay | 37, 38, 48 |
+| Model generates PII or sensitive data from training | No negative space constraints; no privacy invariant | 20, 21 |
+| Agent loops indefinitely on failing subtask | No stop condition; no escalation rule | 37 |
+| Confident answer to unanswerable question | No answerability check; no epistemic checkpoint | 12a, 13 |
+
+## Appendix E — Reference Architectures
+
+### Architecture 1: Single-Prompt with Guardrails
+
+```
+┌─────────────────────────────┐
+│         User Input          │
+└──────────────┬──────────────┘
+               │
+      ┌────────▼────────┐
+      │   Input Filter   │  ← Reject malformed / adversarial input
+      └────────┬────────┘
+               │
+      ┌────────▼────────┐
+      │   System Prompt  │  ← Constraints, role, format, ground truth
+      │   + User Query   │     (Sections 9, 15–21, 24)
+      └────────┬────────┘
+               │
+      ┌────────▼────────┐
+      │    LLM Call      │
+      └────────┬────────┘
+               │
+      ┌────────▼────────┐
+      │  Output Filter   │  ← Confidence check, format validation,
+      └────────┬────────┘     PII scan (Sections 12, 20, 34)
+               │
+      ┌────────▼────────┐
+      │   User Output    │
+      └─────────────────┘
+```
+
+**When to use:** Low-to-medium stakes, human-in-the-loop, single-turn or short conversations.
+**Manifesto parts:** I–V mandatory, VI–VII recommended.
+
+### Architecture 2: RAG Pipeline with Verification
+
+```
+┌──────────┐    ┌──────────────┐    ┌──────────────┐
+│  Query   │───▶│  Retriever   │───▶│  Retrieved   │
+└──────────┘    │  (search,    │    │  Chunks      │
+                │   vector DB) │    │  + metadata  │
+                └──────────────┘    └──────┬───────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  Relevance Filter      │  ← Rank, prune
+                              │  (Section 27)          │     irrelevant chunks
+                              └───────────┬───────────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  LLM Generation        │  ← System prompt +
+                              │  + Citation Requirement │     retrieved context
+                              └───────────┬───────────┘    (Sections 24, 41)
+                                          │
+                              ┌───────────▼───────────┐
+                              │  Citation Verification │  ← Every claim maps
+                              │  (Section 41)          │     to a source chunk?
+                              └───────────┬───────────┘
+                                          │
+                              ┌───────────▼───────────┐
+                              │  Output + Sources      │
+                              └───────────────────────┘
+```
+
+**When to use:** Correctness-critical, fact-dependent queries, knowledge-intensive domains.
+**Manifesto parts:** I–V mandatory, VII mandatory.
+**Key rule:** If no relevant chunks are retrieved, the system must refuse rather than fall back to parametric knowledge (Section 41).
+
+### Architecture 3: Agentic Orchestrator-Worker
+
+```
+┌─────────────────────────────────────────────────┐
+│                 ORCHESTRATOR                     │
+│  ┌───────────────────────────────────────────┐   │
+│  │  Task Plan + Constraint Registry          │   │
+│  │  (Sections 16, 20, 37)                    │   │
+│  └───────────────────┬───────────────────────┘   │
+│                      │                           │
+│    ┌─────────────────┼─────────────────┐         │
+│    │                 │                 │         │
+│    ▼                 ▼                 ▼         │
+│ ┌──────┐       ┌──────────┐      ┌────────┐     │
+│ │Worker│       │  Worker  │      │ Worker │     │
+│ │  A   │       │    B     │      │   C    │     │
+│ │(tool)│       │(research)│      │(write) │     │
+│ └──┬───┘       └────┬─────┘      └───┬────┘     │
+│    │                │                │          │
+│    └────────────────┼────────────────┘          │
+│                     ▼                           │
+│  ┌───────────────────────────────────────────┐   │
+│  │  State Synthesis + Conflict Resolution    │   │
+│  │  (Section 39)                             │   │
+│  └───────────────────┬───────────────────────┘   │
+│                      │                           │
+│  ┌───────────────────▼───────────────────────┐   │
+│  │  Context Reset Check (Section 38)         │   │
+│  │  Continue / Reset / Escalate / Stop       │   │
+│  └───────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+```
+
+**When to use:** Multi-step tasks, tool-heavy workflows, autonomous agents.
+**Manifesto parts:** All parts mandatory (I–VIII).
+**Key rules:** Central synthesis required (Section 39). Tool calls logged (Section 41). Stop conditions enforced (Section 37). Context reset at decay signals (Section 38).
