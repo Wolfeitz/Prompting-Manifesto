@@ -3,9 +3,9 @@
 **Version:** 2026.0 (clarified)
 **Status:** Canon
 **Change Policy:** Conservative (interpretation > expansion)
-**Audience:** LLMs, Agent Systems, and Prompt-Orchestrating Models (Human-readable by design, not human-first)
+**Audience:** Teams and organizations shipping LLM-powered systems (human-readable; machine-consumable by design)
 
-*A Discipline for Reliable LLMs, Agents, and GPT Systems*
+*A Discipline for Reliable AI-Powered Systems*
 
 ---
 
@@ -28,10 +28,12 @@ This document treats prompting as what it actually is:
 
 This manifesto is for:
 
-* IT departments
-* Platform and infrastructure teams
-* Prompt engineers, agent builders, and GPT authors
-* Architects responsible for reliability, safety, and correctness
+* Teams shipping LLM-powered features to production
+* Platform and infrastructure teams building AI tooling
+* Prompt engineers, agent builders, and system architects
+* Anyone responsible for the reliability, safety, or correctness of AI-generated outputs
+
+It is also consumable as a reference by LLMs, agent systems, and prompt-orchestrating models — but the primary audience is the humans who design, review, and maintain these systems.
 
 This manifesto is *not* for:
 
